@@ -1,0 +1,189 @@
+project:
+  packs:
+    - pack: Keil::STM32G4xx_DFP
+    - pack: ARM::CMSIS@5.9.0
+  setups:
+    - setup: Options for MainProject
+      processor:
+        fpu: sp
+      add-path:
+        - ../Core/Inc
+        - ../USB_Device/App
+        - ../USB_Device/Target
+        - ../Drivers/STM32G4xx_HAL_Driver/Inc
+        - ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy
+        - ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc
+        - ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc
+        - ../Drivers/CMSIS/Device/ST/STM32G4xx/Include
+        - ../Drivers/CMSIS/Include
+        - ../Middlewares/Third_Party/FreeRTOS/Source/include
+        - ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
+        - ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F
+        - ../App/Inc
+      debug: "on"
+      define:
+        - USE_HAL_DRIVER
+        - STM32G473xx
+      misc:
+        - C:
+            - -std=c99
+          C-CPP:
+            - -fno-rtti
+            - -funsigned-char
+            - -fshort-enums
+            - -fshort-wchar
+            - -ffunction-sections
+            - -Wno-packed
+            - -Wno-missing-variable-declarations
+            - -Wno-missing-prototypes
+            - -Wno-missing-noreturn
+            - -Wno-sign-conversion
+            - -Wno-nonportable-include-path
+            - -Wno-reserved-id-macro
+            - -Wno-unused-macros
+            - -Wno-documentation-unknown-command
+            - -Wno-documentation
+            - -Wno-license-management
+            - -Wno-parentheses-equality
+          CPP:
+            - -xc++
+            - -std=c++11
+          ASM:
+            - -masm=auto
+          Link:
+            - --map
+            - --load_addr_map_info
+            - --xref
+            - --callgraph
+            - --symbols
+            - --info sizes
+            - --info totals
+            - --info unused
+            - --info veneers
+            - --strict
+            - --summary_stderr
+            - --info summarysizes
+  linker:
+    - script: MainProject_MainProject.sct
+  groups:
+    - group: Application/MDK-ARM
+      files:
+        - file: startup_stm32g473xx.s
+    - group: Application/User/Core
+      files:
+        - file: ../Core/Src/main.c
+        - file: ../Core/Src/gpio.c
+        - file: ../Core/Src/app_freertos.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Core/Src/stm32g4xx_it.c
+        - file: ../Core/Src/stm32g4xx_hal_msp.c
+        - file: ../Core/Src/stm32g4xx_hal_timebase_tim.c
+    - group: Application/User/USB_Device/App
+      files:
+        - file: ../USB_Device/App/usb_device.c
+        - file: ../USB_Device/App/usbd_desc.c
+        - file: ../USB_Device/App/usbd_cdc_if.c
+    - group: Application/User/USB_Device/Target
+      files:
+        - file: ../USB_Device/Target/usbd_conf.c
+    - group: Drivers/STM32G4xx_HAL_Driver
+      files:
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pcd.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pcd_ex.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_usb.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_rcc.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_rcc_ex.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ex.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ramfunc.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_gpio.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_exti.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_dma.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_dma_ex.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pwr.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pwr_ex.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_cortex.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim_ex.c
+    - group: Drivers/CMSIS
+      files:
+        - file: ../Core/Src/system_stm32g4xx.c
+    - group: Middlewares/USB_Device_Library
+      files:
+        - file: ../Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c
+        - file: ../Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c
+        - file: ../Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c
+        - file: ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c
+    - group: App
+      files:
+        - file: ../App/Src/MainTask.cpp
+        - file: ../App/Src/MessageTask.cpp
+    - group: Middlewares/FreeRTOS
+      misc:
+        - C-CPP:
+            - -Wno-packed
+            - -Wno-missing-variable-declarations
+            - -Wno-missing-prototypes
+            - -Wno-missing-noreturn
+            - -Wno-sign-conversion
+            - -Wno-nonportable-include-path
+            - -Wno-reserved-id-macro
+            - -Wno-unused-macros
+            - -Wno-documentation-unknown-command
+            - -Wno-documentation
+            - -Wno-license-management
+            - -Wno-parentheses-equality
+            - -Wno-covered-switch-default
+            - -Wno-unreachable-code-break
+          CPP:
+            - -xc++
+      files:
+        - file: .
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/croutine.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/event_groups.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/list.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/queue.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/tasks.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/timers.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/port.c
+          misc:
+            - CPP:
+                - -xc++
+  components:
+    - component: ARM::CMSIS:CORE

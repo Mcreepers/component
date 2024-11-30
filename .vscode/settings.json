@@ -1,0 +1,23 @@
+{
+	"clangd.arguments": [
+		"--compile-commands-dir=/home/binzs/Creeper/Broad/Bravo/BravoCom/MDK-ARM/out/MainProject/MainProject"
+	],
+	"cmsis-csolution.actions": [
+		{
+			"path": "MDK-ARM/MainProject.csolution.yml",
+			"target": "MainProject",
+			"projects": [
+				{
+					"path": "MDK-ARM/MainProject.cproject.yml",
+					"config": {
+						"run": "arm-debugger.flash: Flash Device"
+					}
+				}
+			],
+			"config": {
+				"run": "arm-debugger.flash: Flash Device",
+				"debug": "Arm Debugger"
+			}
+		}
+	]
+}
