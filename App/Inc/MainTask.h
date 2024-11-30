@@ -8,4 +8,9 @@ void maintask(void *argument);
 #ifdef __cplusplus
 }
 #endif
+
+class cMain
+{
+
+};
 #endif

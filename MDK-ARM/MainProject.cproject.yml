@@ -20,6 +20,7 @@ project:
         - ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
         - ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F
         - ../App/Inc
+        - ../Component/Inc
       debug: "on"
       define:
         - USE_HAL_DRIVER
@@ -71,15 +72,16 @@ project:
         - file: startup_stm32g473xx.s
     - group: Application/User/Core
       files:
-        - file: ../Core/Src/main.c
+        - file: ../Core/Src/main.cpp
         - file: ../Core/Src/gpio.c
-        - file: ../Core/Src/app_freertos.c
+        - file: ../Core/Src/app_freertos.cpp
           misc:
             - CPP:
                 - -xc++
         - file: ../Core/Src/stm32g4xx_it.c
         - file: ../Core/Src/stm32g4xx_hal_msp.c
         - file: ../Core/Src/stm32g4xx_hal_timebase_tim.c
+        - file: ../Core/Src/usart.c
     - group: Application/User/USB_Device/App
       files:
         - file: ../USB_Device/App/usb_device.c
@@ -108,6 +110,14 @@ project:
         - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_cortex.c
         - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim.c
         - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim_ex.c
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart_ex.c
+          misc:
+            - CPP:
+                - -xc++
     - group: Drivers/CMSIS
       files:
         - file: ../Core/Src/system_stm32g4xx.c
@@ -120,7 +130,23 @@ project:
     - group: App
       files:
         - file: ../App/Src/MainTask.cpp
+          misc:
+            - CPP:
+                - -xc++
         - file: ../App/Src/MessageTask.cpp
+          misc:
+            - CPP:
+                - -xc++
+    - group: Component
+      files:
+        # - file: ../Component/Src/com_uart.cpp
+        - file: ../Component/Src/com_statistic.cpp
+        - file: ../Component/Src/com_time.cpp
+        # - file: ../Component/Src/com_oled.cpp
+        - file: ../Component/Src/com_os.cpp
+        - file: ../Component/Src/com_lib.cpp
+        - file: ../Component/Src/com_printf.cpp
+        - file: ../Component/Src/com_uart.cpp
     - group: Middlewares/FreeRTOS
       misc:
         - C-CPP:

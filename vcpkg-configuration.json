@@ -13,6 +13,8 @@
 		"arm:tools/arm/mdk-toolbox": "1.0.0",
 		"arm:compilers/arm/armclang-fusa": "6.22.1",
 		"arm:compilers/arm/armclang": "6.23.0",
-		"arm:debuggers/arm/armdbg": "*"
+		"arm:debuggers/arm/armdbg": "*",
+		"arm:compilers/arm/arm-none-eabi-gcc": "13.3.1",
+		"arm:compilers/arm/llvm-embedded": "19.1.1"
 	}
 }

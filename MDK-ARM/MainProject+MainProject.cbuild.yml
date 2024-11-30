@@ -94,6 +94,7 @@ build:
     - ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
     - ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F
     - ../App/Inc
+    - ../Component/Inc
     - RTE/_MainProject
     - ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/Core/Include
     - ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0/Drivers/CMSIS/Device/ST/STM32G4xx/Include
@@ -142,12 +143,12 @@ build:
           category: sourceAsm
     - group: Application/User/Core
       files:
-        - file: ../Core/Src/main.c
-          category: sourceC
+        - file: ../Core/Src/main.cpp
+          category: sourceCpp
         - file: ../Core/Src/gpio.c
           category: sourceC
-        - file: ../Core/Src/app_freertos.c
-          category: sourceC
+        - file: ../Core/Src/app_freertos.cpp
+          category: sourceCpp
           misc:
             CPP:
               - -xc++
@@ -156,6 +157,8 @@ build:
         - file: ../Core/Src/stm32g4xx_hal_msp.c
           category: sourceC
         - file: ../Core/Src/stm32g4xx_hal_timebase_tim.c
+          category: sourceC
+        - file: ../Core/Src/usart.c
           category: sourceC
     - group: Application/User/USB_Device/App
       files:
@@ -207,6 +210,16 @@ build:
           category: sourceC
         - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim_ex.c
           category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart.c
+          category: sourceC
+          misc:
+            CPP:
+              - -xc++
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart_ex.c
+          category: sourceC
+          misc:
+            CPP:
+              - -xc++
     - group: Drivers/CMSIS
       files:
         - file: ../Core/Src/system_stm32g4xx.c
@@ -225,7 +238,27 @@ build:
       files:
         - file: ../App/Src/MainTask.cpp
           category: sourceCpp
+          misc:
+            CPP:
+              - -xc++
         - file: ../App/Src/MessageTask.cpp
+          category: sourceCpp
+          misc:
+            CPP:
+              - -xc++
+    - group: Component
+      files:
+        - file: ../Component/Src/com_statistic.cpp
+          category: sourceCpp
+        - file: ../Component/Src/com_time.cpp
+          category: sourceCpp
+        - file: ../Component/Src/com_os.cpp
+          category: sourceCpp
+        - file: ../Component/Src/com_lib.cpp
+          category: sourceCpp
+        - file: ../Component/Src/com_printf.cpp
+          category: sourceCpp
+        - file: ../Component/Src/com_uart.cpp
           category: sourceCpp
     - group: Middlewares/FreeRTOS
       misc:

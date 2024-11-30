@@ -55,6 +55,7 @@ Templates/
 Examples/
 MDK-ARM/DebugConfig/
 MDK-ARM/tmp
+MDK-ARM/out
 
 !*.uvprojx
 !*.h
