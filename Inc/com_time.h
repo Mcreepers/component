@@ -45,7 +45,7 @@ class com_time
 
     uint64_t tick_count;
 
-    uint16_t period;
+    uint32_t period;
     uint16_t unit;
     volatile uint32_t *tick_ptr; // = &htim->Instance->CNT;unit is us
     bool us_ptr_flag;            // check if tick_ptr is used

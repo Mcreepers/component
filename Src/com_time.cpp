@@ -66,7 +66,7 @@ uint8_t com_time::delay_ms(uint32_t ms)
     }
     return COM_OK;
 }
-
+uint16_t debugdata;
 /**
  * @brief: update the time
  * @todo improve
@@ -80,7 +80,11 @@ void com_time::time_update(void)
         if (error <= 0)
         {
             tick_count += period;
+					if(-error<period) 
+						debugdata = error;
         }
+				if(error>1)
+					debugdata = error;
         tick_count += error;
     }
     us_tick_last = us_tick;
@@ -102,8 +106,8 @@ uint64_t com_time::get_time_us_count(void) { return tick_count; }
 
 uint64_t com_time::get_time_ms_count(void)
 {
-    //	return tick_count / 1000;
-    return (tick_count * 0x4189374BC6A7EF9DULL) >> 40;
+    return tick_count / 1000;
+    // return (tick_count * 0x4189374BC6A7EF9DULL) >> 40;
 }
 
 unsigned char com_delay_ms(unsigned int ms)

@@ -68,12 +68,12 @@ class com_thread
     thread_context Context;
 
     enum class Thread_State
-    {
-        Terminated,
-        Ready,
-        Running,
-        Suspended,
-        Blocked
+    {               // state of thread
+        Terminated, // Init state
+        Ready,      // waiting for running
+        Running,    // running
+        Suspended,  // end of running
+        Blocked     // wait time to ready
     } State;
 };
 
@@ -92,11 +92,12 @@ class com_os : private com_time
 
     void Scheduler();
 
-    bool IsPreemptive() { return preemptive; }
+    uint8_t GetScheduler_Type() { return (uint8_t)SchType; }
 
   private:
     void Switch(com_thread &thread);
-    void Time_Update();
+    void OSTime_Update();
+    void Default_fun(void *para);
 
     uint8_t thread_count;
     uint32_t tick_count;
@@ -104,11 +105,8 @@ class com_os : private com_time
     com_thread default_thread;
     com_thread *thread_running_ptr;
     com_thread *thread_ptr;
-    com_thread *threads_ptr[10];
     com_thread threads[COM_OS_MAX_THREAD];
-    uint8_t Stack[COM_OS_MAX_STACK_SIZE];
-
-    bool preemptive = 0; // 0:Non-Preemptive 1:Preemptive
+    // uint8_t Stack[COM_OS_MAX_STACK_SIZE];
 
     enum class Scheduler_State
     {
@@ -119,9 +117,12 @@ class com_os : private com_time
         Stopped
     } State;
 
-  protected:
-    com_thread *current_thread_ptr;
-    com_thread *next_thread_ptr;
+    enum class Scheduler_Type
+    {
+        TimeSlice,
+        Preemptive,
+        NonPreemptive,
+    } SchType = Scheduler_Type::TimeSlice;
 };
 
 #endif

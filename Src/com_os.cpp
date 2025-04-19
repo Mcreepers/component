@@ -117,7 +117,6 @@ uint8_t com_os::new_thread(com_thread &thread)
         if (State == Scheduler_State::Running)
         {
             State = Scheduler_State::Sort;
-            Scheduler();
         }
         thread_ptr++;
         return COM_OK;
@@ -132,12 +131,16 @@ uint8_t com_os::delete_thread(com_thread &thread)
     if (State == Scheduler_State::Running)
     {
         State = Scheduler_State::Sort;
-        Scheduler();
     }
     return COM_OK;
 }
 
-void com_os::Delay(uint32_t ms) { thread_running_ptr->Tick = ms; }
+void com_os::Delay(uint32_t ms)
+{
+    thread_running_ptr->Tick = ms;
+    thread_running_ptr->State = com_thread::Thread_State::Blocked;
+    // Scheduler();
+}
 
 void com_os::Scheduler()
 {
@@ -205,13 +208,12 @@ void com_os::Scheduler()
                     break;
                 }
             }
-            Time_Update();
+            OSTime_Update();
         }
         break;
         default:
             break;
         }
-        delay_us(1);
     }
 }
 
@@ -219,14 +221,14 @@ void com_os::Switch(com_thread &thread)
 {
     next_thread_ptr = &thread;
 
-    if (preemptive == 0)
+    if (SchType == Scheduler_Type::TimeSlice)
     {
         thread_running_ptr = &thread;
         thread.Fun(NULL);
         thread_running_ptr = &default_thread;
         thread.State = com_thread::Thread_State::Blocked;
     }
-    else if (preemptive == 1)
+    else if (SchType == Scheduler_Type::Preemptive)
     {
         SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 
@@ -236,10 +238,18 @@ void com_os::Switch(com_thread &thread)
 
         // TODO
     }
+    else if (SchType == Scheduler_Type::NonPreemptive)
+    {
+        thread_running_ptr = &thread;
+        thread.Fun(NULL);
+        thread_running_ptr = &default_thread;
+        thread.State = com_thread::Thread_State::Blocked;
+    }
 }
 
-void com_os::Time_Update()
+void com_os::OSTime_Update()
 {
+    time_update();
     uint32_t error = get_time_ms_count() - tick_count;
     for (uint8_t i = 0; i < thread_count; i++)
     {
@@ -252,46 +262,47 @@ void com_os::Time_Update()
             }
         }
     }
+    tick_count = get_time_ms_count();
 }
 
-extern "C"
-{
-    void PendSV_Handler(void) __attribute__((naked));
-    void PendSV_Handler(void)
-    {
-        __asm volatile(
-            // 保存上下文
-            "MRS     r0, PSP                \n" // 获取当前进程栈指针
-            "STMDB   r0!, {r4-r11}          \n" // 保存r4-r11到堆栈
+// extern "C"
+// {
+//     void PendSV_Handler(void) __attribute__((naked));
+//     void PendSV_Handler(void)
+//     {
+//         __asm volatile(
+//             // 保存上下文
+//             "MRS     r0, PSP                \n" // 获取当前进程栈指针
+//             "STMDB   r0!, {r4-r11}          \n" // 保存r4-r11到堆栈
 
-            // 如果使用FPU，添加浮点寄存器保存
-            // "VSTMDB  r0!, {s16-s31}      \n"
+//             // 如果使用FPU，添加浮点寄存器保存
+//             // "VSTMDB  r0!, {s16-s31}      \n"
 
-            // 保存PSP到当前任务结构
-            "LDR     r1, =current_task_ptr  \n"
-            "LDR     r1, [r1]               \n"
-            "STR     r0, [r1]               \n" // 保存栈指针
+//             // 保存PSP到当前任务结构
+//             "LDR     r1, =current_task_ptr  \n"
+//             "LDR     r1, [r1]               \n"
+//             "STR     r0, [r1]               \n" // 保存栈指针
 
-            // 获取下一个任务
-            "PUSH    {r0, lr}               \n"
-            "BL      next_thread_ptr     \n" // 调用调度函数
-            "POP     {r0, lr}               \n"
+//             // 获取下一个任务
+//             "PUSH    {r0, lr}               \n"
+//             "BL      next_thread_ptr     \n" // 调用调度函数
+//             "POP     {r0, lr}               \n"
 
-            // 加载新任务的上下文
-            "LDR     r1, =current_task_ptr  \n"
-            "STR     r0, [r1]               \n" // 设置新的当前任务
-            "LDR     r0, [r0]               \n" // 读取新任务的PSP
+//             // 加载新任务的上下文
+//             "LDR     r1, =current_task_ptr  \n"
+//             "STR     r0, [r1]               \n" // 设置新的当前任务
+//             "LDR     r0, [r0]               \n" // 读取新任务的PSP
 
-            // 恢复浮点寄存器(如果使用)
-            // "VLDMIA  r0!, {s16-s31}      \n"
+//             // 恢复浮点寄存器(如果使用)
+//             // "VLDMIA  r0!, {s16-s31}      \n"
 
-            // 恢复寄存器
-            "LDMIA   r0!, {r4-r11}          \n"
-            "MSR     PSP, r0                \n" // 更新PSP
+//             // 恢复寄存器
+//             "LDMIA   r0!, {r4-r11}          \n"
+//             "MSR     PSP, r0                \n" // 更新PSP
 
-            // 返回到线程模式
-            "BX      lr                     \n");
-    }
-}
+//             // 返回到线程模式
+//             "BX      lr                     \n");
+//     }
+// }
 
 void null_fun(void *para) {}
