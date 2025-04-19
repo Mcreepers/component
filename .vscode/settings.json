@@ -1,0 +1,24 @@
+{
+	"clangd.arguments": [
+		"--compile-commands-dir=d:\\project\\Bravo\\Bravo_OSNULL\\MDK-ARM\\out\\MainProject\\MainProject",
+		"--header-insertion=never"
+	],
+	"cmsis-csolution.actions": [
+		{
+			"path": "MDK-ARM/MainProject.csolution.yml",
+			"target": "MainProject",
+			"projects": [
+				{
+					"path": "MDK-ARM/MainProject.cproject.yml",
+					"config": {
+						"run": "arm-debugger.flash: Flash Device"
+					}
+				}
+			],
+			"config": {
+				"run": "arm-debugger.flash: Flash Device",
+				"debug": "Arm Debugger"
+			}
+		}
+	]
+}

@@ -1,0 +1,30 @@
+cbuild-run:
+  generated-by: csolution version 2.7.0
+  solution: MainProject.csolution.yml
+  target-type: MainProject
+  compiler: AC6
+  device: STMicroelectronics::STM32G473VETx
+  device-pack: Keil::STM32G4xx_DFP@1.6.0
+  programming:
+    - algorithm: ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0/CMSIS/Flash/STM32G47x-8x_512.FLM
+      start: 0x08000000
+      size: 0x00080000
+      ram-start: 0x20000000
+      ram-size: 0x00008000
+      default: true
+    - algorithm: ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0/CMSIS/Flash/STM32G4xx_DB_OPT.FLM
+      start: 0x1FFF7800
+      size: 0x00000054
+      ram-start: 0x20000000
+      ram-size: 0x00008000
+    - algorithm: ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0/CMSIS/Flash/MT25QL512ABB_STM32G474E-EVAL.FLM
+      start: 0x90000000
+      size: 0x08000000
+      ram-start: 0x20000000
+      ram-size: 0x000A0000
+  system-descriptions:
+    - file: ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0/CMSIS/SVD/STM32G473.svd
+      type: svd
+  output:
+    - file: out/MainProject/MainProject/MainProject.axf
+      type: elf

@@ -1,0 +1,25 @@
+CompileFlags:
+  CompilationDatabase: d:\project\Bravo\Bravo_OSNULL\MDK-ARM\out\MainProject\MainProject
+  Add:
+    - '-ID:/project/Bravo/Bravo_OSNULL/MDK-ARM/RTE/_MainProject'
+    - >-
+      -IC:/Users/bin15/AppData/Local/arm/packs/ARM/CMSIS/5.9.0/CMSIS/Core/Include
+    - >-
+      -IC:/Users/bin15/AppData/Local/arm/packs/Keil/STM32G4xx_DFP/1.6.0/Drivers/CMSIS/Device/ST/STM32G4xx/Include
+    - '-ID:/project/Bravo/Bravo_OSNULL/MDK-ARM/../Core/Inc'
+    - '-ID:/project/Bravo/Bravo_OSNULL/MDK-ARM/../USB_Device/App'
+    - '-ID:/project/Bravo/Bravo_OSNULL/MDK-ARM/../USB_Device/Target'
+    - >-
+      -ID:/project/Bravo/Bravo_OSNULL/MDK-ARM/../Drivers/STM32G4xx_HAL_Driver/Inc
+    - >-
+      -ID:/project/Bravo/Bravo_OSNULL/MDK-ARM/../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy
+    - >-
+      -ID:/project/Bravo/Bravo_OSNULL/MDK-ARM/../Middlewares/ST/STM32_USB_Device_Library/Core/Inc
+    - >-
+      -ID:/project/Bravo/Bravo_OSNULL/MDK-ARM/../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc
+    - >-
+      -ID:/project/Bravo/Bravo_OSNULL/MDK-ARM/../Drivers/CMSIS/Device/ST/STM32G4xx/Include
+    - '-ID:/project/Bravo/Bravo_OSNULL/MDK-ARM/../Drivers/CMSIS/Include'
+    - '-ID:/project/Bravo/Bravo_OSNULL/MDK-ARM/../Component/Inc'
+    - '-ID:/project/Bravo/Bravo_OSNULL/MDK-ARM/../App/Inc'
+    - '-ID:/project/Bravo/Bravo_OSNULL/MDK-ARM/tmp/MainProject+MainProject'

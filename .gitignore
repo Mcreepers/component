@@ -1,0 +1,67 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+*.zip
+*.o
+*.d
+*.crf
+*.htm
+*.dep
+*.map
+*.bak
+*.lnp
+*.lst
+*.ini
+*.iex
+*.scvd
+*.uvguix
+*.dbg*
+*.uvguix.*
+.mxproject
+ 
+RTE/
+Templates/
+Examples/
+MDK-ARM/DebugConfig/
+MDK-ARM/tmp
+MDK-ARM/out
+
+!*.uvprojx
+!*.h
+!*.c
+!*.ioc
+!*.axf
+!*.bin
+!*.hex
+
+

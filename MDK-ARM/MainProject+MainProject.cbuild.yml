@@ -1,0 +1,277 @@
+build:
+  generated-by: csolution version 2.8.0
+  solution: MainProject.csolution.yml
+  project: MainProject.cproject.yml
+  context: MainProject+MainProject
+  compiler: AC6
+  device: STMicroelectronics::STM32G473VETx
+  device-pack: Keil::STM32G4xx_DFP@1.6.0
+  device-books:
+    - name: ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0/Documentation/DS12712.pdf
+      title: STM32G473xx Data Sheet
+    - name: ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0/Documentation/dui0553a_cortex_m4_dgug.pdf
+      title: Cortex-M4 Generic User Guide
+    - name: ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0/Documentation/RM0440.pdf
+      title: STM32G4xx Reference Manual
+  dbgconf:
+    - file: RTE/Device/STM32G473VETx/STM32G4xx.dbgconf
+      version: 0.0.0
+  processor:
+    endian: little
+    fpu: sp
+    core: Cortex-M4
+  packs:
+    - pack: ARM::CMSIS@5.9.0
+      path: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0
+    - pack: Keil::STM32G4xx_DFP@1.6.0
+      path: ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0
+  optimize: debug
+  debug: on
+  misc:
+    ASM:
+      - -masm=auto
+    C:
+      - -fno-rtti
+      - -funsigned-char
+      - -fshort-enums
+      - -fshort-wchar
+      - -ffunction-sections
+      - -Wno-packed
+      - -Wno-missing-variable-declarations
+      - -Wno-missing-prototypes
+      - -Wno-missing-noreturn
+      - -Wno-sign-conversion
+      - -Wno-nonportable-include-path
+      - -Wno-reserved-id-macro
+      - -Wno-unused-macros
+      - -Wno-documentation-unknown-command
+      - -Wno-documentation
+      - -Wno-license-management
+      - -Wno-parentheses-equality
+    CPP:
+      - -xc++
+      - -std=c++11
+      - -fno-exceptions
+      - -fno-rtti
+      - -funsigned-char
+      - -fshort-enums
+      - -fshort-wchar
+      - -ffunction-sections
+      - -Wno-packed
+      - -Wno-missing-variable-declarations
+      - -Wno-missing-prototypes
+      - -Wno-missing-noreturn
+      - -Wno-sign-conversion
+      - -Wno-nonportable-include-path
+      - -Wno-reserved-id-macro
+      - -Wno-unused-macros
+      - -Wno-documentation-unknown-command
+      - -Wno-documentation
+      - -Wno-license-management
+      - -Wno-parentheses-equality
+    Link:
+      - --map
+      - --load_addr_map_info
+      - --xref
+      - --callgraph
+      - --symbols
+      - --info sizes
+      - --info totals
+      - --info unused
+      - --info veneers
+      - --strict
+      - --summary_stderr
+      - --info summarysizes
+  define:
+    - USE_HAL_DRIVER
+    - STM32G473xx
+    - STM32G473xx
+    - _RTE_
+  define-asm:
+    - STM32G473xx
+    - _RTE_
+  add-path:
+    - ../Core/Inc
+    - ../USB_Device/App
+    - ../USB_Device/Target
+    - ../Drivers/STM32G4xx_HAL_Driver/Inc
+    - ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy
+    - ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc
+    - ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc
+    - ../Drivers/CMSIS/Device/ST/STM32G4xx/Include
+    - ../Drivers/CMSIS/Include
+    - ../Component/Inc
+    - ../App/Inc
+    - RTE/_MainProject
+    - ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/Core/Include
+    - ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0/Drivers/CMSIS/Device/ST/STM32G4xx/Include
+  add-path-asm:
+    - RTE/_MainProject
+    - ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/Core/Include
+    - ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0/Drivers/CMSIS/Device/ST/STM32G4xx/Include
+  output-dirs:
+    intdir: tmp
+    outdir: out/MainProject/MainProject
+    rtedir: RTE
+  output:
+    - type: elf
+      file: MainProject.axf
+  components:
+    - component: ARM::CMSIS:CORE@5.6.0
+      condition: ARMv6_7_8-M Device
+      from-pack: ARM::CMSIS@5.9.0
+      selected-by: ARM::CMSIS:CORE
+      files:
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/Core/Include
+          category: include
+          version: 5.6.0
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/Core/Include/tz_context.h
+          category: header
+          version: 5.6.0
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/Core/Template/ARMv8-M/main_s.c
+          category: sourceC
+          attr: template
+          version: 1.1.1
+          select: Secure mode 'main' module for ARMv8-M
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/Core/Template/ARMv8-M/tz_context.c
+          category: sourceC
+          attr: template
+          version: 1.1.1
+          select: RTOS Context Management (TrustZone for ARMv8-M)
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/Documentation/Core/html/index.html
+          category: doc
+          version: 5.6.0
+  linker:
+    script: MainProject_MainProject.sct
+  groups:
+    - group: Application/MDK-ARM
+      files:
+        - file: startup_stm32g473xx.s
+          category: sourceAsm
+    - group: Application/User/Core
+      files:
+        - file: ../Core/Src/main.c
+          category: sourceC
+        - file: ../Core/Src/gpio.c
+          category: sourceC
+        - file: ../Core/Src/tim.c
+          category: sourceC
+          misc:
+            CPP:
+              - -xc++
+        - file: ../Core/Src/usart.c
+          category: sourceC
+          misc:
+            CPP:
+              - -xc++
+        - file: ../Core/Src/stm32g4xx_it.c
+          category: sourceC
+        - file: ../Core/Src/stm32g4xx_hal_msp.c
+          category: sourceC
+        - file: ../Core/Src/stm32g4xx_hal_timebase_tim.c
+          category: sourceC
+    - group: Application/User/USB_Device/App
+      files:
+        - file: ../USB_Device/App/usb_device.c
+          category: sourceC
+        - file: ../USB_Device/App/usbd_desc.c
+          category: sourceC
+        - file: ../USB_Device/App/usbd_cdc_if.c
+          category: sourceC
+    - group: Application/User/USB_Device/Target
+      files:
+        - file: ../USB_Device/Target/usbd_conf.c
+          category: sourceC
+    - group: Drivers/STM32G4xx_HAL_Driver
+      files:
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim_ex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pcd.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pcd_ex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_usb.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_rcc.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_rcc_ex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ramfunc.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_gpio.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_exti.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_dma.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_dma_ex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pwr.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pwr_ex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_cortex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart.c
+          category: sourceC
+          misc:
+            CPP:
+              - -xc++
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart_ex.c
+          category: sourceC
+          misc:
+            CPP:
+              - -xc++
+    - group: Drivers/CMSIS
+      files:
+        - file: ../Core/Src/system_stm32g4xx.c
+          category: sourceC
+    - group: Middlewares/USB_Device_Library
+      files:
+        - file: ../Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c
+          category: sourceC
+        - file: ../Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c
+          category: sourceC
+        - file: ../Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c
+          category: sourceC
+        - file: ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c
+          category: sourceC
+    - group: App
+      files:
+        - file: ../App/Src/MainTask.cpp
+          category: sourceCpp
+        - file: ../App/Src/MessageTask.cpp
+          category: sourceCpp
+    - group: Component
+      files:
+        - file: ../Component/Src/com_os.cpp
+          category: sourceCpp
+        - file: ../Component/Src/com_printf.cpp
+          category: sourceCpp
+        - file: ../Component/Src/com_statistic.cpp
+          category: sourceCpp
+        - file: ../Component/Src/com_time.cpp
+          category: sourceCpp
+        - file: ../Component/Src/com_uart.cpp
+          category: sourceCpp
+  constructed-files:
+    - file: RTE/_MainProject/RTE_Components.h
+      category: header
+  licenses:
+    - license: <unknown>
+      packs:
+        - pack: ARM::CMSIS@5.9.0
+      components:
+        - component: ARM::CMSIS:CORE@5.6.0
+    - license: <unknown>
+      license-agreement: ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0/LICENSE
+      packs:
+        - pack: Keil::STM32G4xx_DFP@1.6.0

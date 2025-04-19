@@ -1,0 +1,18 @@
+build-idx:
+  generated-by: csolution version 2.8.0
+  csolution: MainProject.csolution.yml
+  tmpdir: tmp
+  cprojects:
+    - cproject: MainProject.cproject.yml
+  cbuilds:
+    - cbuild: MainProject+MainProject.cbuild.yml
+      project: MainProject
+      configuration: +MainProject
+      messages:
+        info:
+          - MainProject.cbuild-pack.yml - file is already up-to-date
+          - MainProject+MainProject.cbuild-run.yml - file generated successfully
+          - MainProject+MainProject.cbuild.yml - file is already up-to-date
+      packs-unused:
+        - pack: ARM::CMSIS-DSP@1.16.2
+        - pack: ARM::CMSIS-NN@4.1.0
