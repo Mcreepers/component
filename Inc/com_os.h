@@ -93,6 +93,7 @@ class com_os : private com_time
     void Scheduler();
 
     uint8_t GetScheduler_Type() { return (uint8_t)SchType; }
+    uint32_t GetTickCount() { return get_time_ms_count(); }
 
   private:
     void Switch(com_thread &thread);
