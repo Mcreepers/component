@@ -6,12 +6,13 @@ void com_statistic::Statistic_Init(uint8_t Control_Time_)
 {
     Control_Time = Control_Time_;
 }
-//统计数据更新
+// 统计数据更新
 void com_statistic::Statistic_Update(uint32_t Time_)
 {
-    if(Start_Time == 0)
+    if (Start_Time == 0)
     {
         Start_Time = Time_;
+        return;
     }
 
     Last_Time = Time;
@@ -20,12 +21,12 @@ void com_statistic::Statistic_Update(uint32_t Time_)
     FPS = 1 / (float)(Time - Last_Time) * 1000;
     FPS_Count = Count / (float)(Time - Start_Time) * 1000;
 }
-//到达指定周期返回true
+// 到达指定周期返回true
 bool com_statistic::Rate_Do_Execute(uint16_t per)
 {
-    if(Control_Time != 0)
+    if (Control_Time != 0)
     {
-        if((per != 0) && (Count % (uint8_t)(per / Control_Time) == 0))
+        if ((per != 0) && (Count % (uint8_t)(per / Control_Time) == 0))
         {
             return true;
         }
@@ -33,11 +34,10 @@ bool com_statistic::Rate_Do_Execute(uint16_t per)
     }
     else
     {
-        if((per != 0) && (Count % per == 0))
+        if ((per != 0) && (Count % per == 0))
         {
             return true;
         }
         return false;
     }
 }
-

@@ -36,14 +36,6 @@ extern "C" {
 
 //#include "cmsis_os2.h"
 
-typedef enum
-{
-	COM_OK = 0,
-	COM_ERROR = 1,
-	COM_BUSY = 2,
-	COM_TIMEOUT = 3
-}COM_StatusTypeDef;//component status
-
 #ifdef COM_CONFIG
 #include "com_config.h"
 #include "com_lib.h"

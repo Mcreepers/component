@@ -1,7 +1,7 @@
 #ifndef __COM_TYPES_H__
 #define __COM_TYPES_H__
 
-#include "component.h"
+// #include "component.h"
 
 #ifdef COM_TYPES
 #ifndef __stdint_h
@@ -70,4 +70,13 @@ typedef unsigned     __LONGLONG uintmax_t;
 #endif
 #endif
 #endif
+
+typedef enum
+{
+	COM_OK = 0,
+	COM_ERROR = 1,
+	COM_BUSY = 2,
+	COM_TIMEOUT = 3
+}COM_StatusTypeDef;//component status
+
 #endif // __COM_TYPES_H__
