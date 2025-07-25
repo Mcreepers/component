@@ -4,19 +4,16 @@
 #include "com_time.h"
 // #include "component.h"
 
-#include <cstdint>
 #include <stdint.h>
-// #include ""
 
 void null_fun(void *para);
 
 #define COM_OS_MAX_THREAD 10
-#define COM_OS_MAX_STACK_SIZE 1 // 1024
+#define COM_OS_MAX_STACK_SIZE 1  // 1024
 
 class com_os;
 
-struct thread_context
-{
+struct thread_context {
     // 硬件自动保存的寄存器
     uint32_t r0;
     uint32_t r1;
@@ -38,12 +35,10 @@ struct thread_context
     uint32_t r11;
 };
 
-class com_thread
-{
-  public:
+class com_thread {
+   public:
     com_thread(const char *name, uint8_t priority, void (*fun)(void *para));
-    ~com_thread()
-    {
+    ~com_thread() {
         State = Thread_State::Terminated;
         Priority = 0;
         Fun = null_fun;
@@ -54,7 +49,7 @@ class com_thread
     inline void Terminate();
     inline void Suspend();
 
-  protected:
+   protected:
     com_thread();
 
     com_thread(char *name, uint8_t priority, void (*fun)(void *para));
@@ -67,19 +62,17 @@ class com_thread
     int32_t Tick;
     thread_context Context;
 
-    enum class Thread_State
-    {               // state of thread
-        Terminated, // Init state
-        Ready,      // waiting for running
-        Running,    // running
-        Suspended,  // end of running
-        Blocked     // wait time to ready
+    enum class Thread_State {  // state of thread
+        Terminated,            // Init state
+        Ready,                 // waiting for running
+        Running,               // running
+        Suspended,             // end of running
+        Blocked                // wait time to ready
     } State;
 };
 
-class com_os : private com_time
-{
-  public:
+class com_os : private com_time {
+   public:
     com_os();
     // com_os(volatile uint32_t *tick_ptr, uint16_t period);
     void Init_time(volatile uint32_t *tick_ptr, uint16_t period);
@@ -95,7 +88,7 @@ class com_os : private com_time
     uint8_t GetScheduler_Type() { return (uint8_t)SchType; }
     uint32_t GetTickCount() { return get_time_ms_count(); }
 
-  private:
+   private:
     void Switch(com_thread &thread);
     void OSTime_Update();
     void Default_fun(void *para);
@@ -109,8 +102,7 @@ class com_os : private com_time
     com_thread threads[COM_OS_MAX_THREAD];
     // uint8_t Stack[COM_OS_MAX_STACK_SIZE];
 
-    enum class Scheduler_State
-    {
+    enum class Scheduler_State {
         Init,
         Sort,
         Running,
@@ -118,8 +110,7 @@ class com_os : private com_time
         Stopped
     } State;
 
-    enum class Scheduler_Type
-    {
+    enum class Scheduler_Type {
         TimeSlice,
         Preemptive,
         NonPreemptive,

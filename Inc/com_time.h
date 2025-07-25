@@ -2,24 +2,22 @@
 #define __COM_TIME_H__
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
-    unsigned char com_delay_ms(unsigned int ms);
-    unsigned int com_get_tick(void);
-    unsigned int com_get_tick_os(void);
-    unsigned char com_delay_ms_os(unsigned int ms);
+unsigned char com_delay_ms(unsigned int ms);
+unsigned int com_get_tick(void);
+unsigned int com_get_tick_os(void);
+unsigned char com_delay_ms_os(unsigned int ms);
 #ifdef __cplusplus
 }
 #endif
 
 // #include "component.h"
 #include "com_types.h"
-#include <cstdint>
+#include "stdint.h"
 
-class com_time
-{
-  public:
+class com_time {
+   public:
     com_time();
     // com_time(volatile uint32_t *us_tick_ptr, uint16_t period);//unit is us
     // com_time(TIMHandlerTypeDef *htim);
@@ -39,7 +37,7 @@ class com_time
 
     void time_update(void);
 
-  private:
+   private:
     uint32_t us_tick;
     uint32_t us_tick_last;
 
@@ -47,8 +45,8 @@ class com_time
 
     uint32_t period;
     uint16_t unit;
-    volatile uint32_t *tick_ptr; // = &htim->Instance->CNT;unit is us
-    bool us_ptr_flag;            // check if tick_ptr is used
+    volatile uint32_t *tick_ptr;  // = &htim->Instance->CNT;unit is us
+    bool us_ptr_flag;             // check if tick_ptr is used
 };
 
-#endif // __COM_TIME_H__
+#endif  // __COM_TIME_H__

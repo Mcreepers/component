@@ -232,9 +232,9 @@ void com_os::Switch(com_thread &thread)
     {
         SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 
-        __DSB();
+        // __DSB();
 
-        __ISB();
+        // __ISB();
 
         // TODO
     }
