@@ -112,6 +112,10 @@ uint8_t com_oled::Begin() {
         return COM_ERROR;
     }
     return ret;
+    if (ret != COM_OK) {
+        return COM_ERROR;
+    }
+    return ret;
 }
 
 uint8_t com_oled::Begin_Fast() {
@@ -130,6 +134,10 @@ uint8_t com_oled::Begin_Fast() {
     Update();  // Update display, clear screen to prevent screen flicker
                // when no content is displayed after initialization
 
+    if (ret != COM_OK) {
+        return COM_ERROR;
+    }
+    return ret;
     if (ret != COM_OK) {
         return COM_ERROR;
     }
@@ -161,6 +169,12 @@ void com_oled::Clear(uint8_t x, uint8_t y, uint8_t Width, uint8_t Height) {
         Height = 64 - y;
     }
 
+    for (uint8_t i = y; i < (y + Height); i++) {
+        for (uint8_t j = x; j < x + Width; j++) {
+            OLED_Buf[i / 8][j] &= ~(0x01 << (i % 8));
+        }
+    }
+    OLED_Fresh = 1;
     for (uint8_t i = y; i < (y + Height); i++) {
         for (uint8_t j = x; j < x + Width; j++) {
             OLED_Buf[i / 8][j] &= ~(0x01 << (i % 8));
@@ -245,8 +259,15 @@ uint8_t com_oled::Fill(uint8_t bmp_data) {
  */
 // uint8_t com_oled::show::BMP(uint8_t x0, uint8_t y0, uint8_t Width, uint8_t
 // Height, uint8_t BMP[])
+ * @brief
+ * @param
+ * @param
+ */
+// uint8_t com_oled::show::BMP(uint8_t x0, uint8_t y0, uint8_t Width, uint8_t
+// Height, uint8_t BMP[])
 //{
 //
+// }
 // }
 
 /**
@@ -256,6 +277,18 @@ uint8_t com_oled::Fill(uint8_t bmp_data) {
  * @param cmd  0: clear, 1: display
  * @return COM_StatusTypeDef COM_OK: success, COM_ERROR: fail
  */
+uint8_t com_oled::show::Point(uint8_t x, uint8_t y, uint8_t cmd) {
+    uint8_t ret = COM_OK;
+    if (x > 127 || y > 63) {
+        return COM_ERROR;
+    }
+    if (cmd == 0) {
+        oled.OLED_Buf[y / 8][x] &= ~(1 << (y % 8));
+    } else {
+        oled.OLED_Buf[y / 8][x] |= 1 << (y % 8);
+    }
+    oled.OLED_Fresh = 1;
+    return ret;
 uint8_t com_oled::show::Point(uint8_t x, uint8_t y, uint8_t cmd) {
     uint8_t ret = COM_OK;
     if (x > 127 || y > 63) {
@@ -281,6 +314,11 @@ uint8_t com_oled::show::GetPoint(uint8_t x, uint8_t y) {
         return 0;
     }
     return (oled.OLED_Buf[y / 8][x] & 0x01 << (y % 8));
+uint8_t com_oled::show::GetPoint(uint8_t x, uint8_t y) {
+    if (x > 127 || y > 63) {
+        return 0;
+    }
+    return (oled.OLED_Buf[y / 8][x] & 0x01 << (y % 8));
 }
 
 /**
@@ -293,6 +331,12 @@ uint8_t com_oled::show::GetPoint(uint8_t x, uint8_t y) {
  * @return COM_StatusTypeDef COM_OK: success, COM_ERROR: fail
  * @todo change not tested
  */
+uint8_t com_oled::show::Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2,
+                             uint8_t cmd) {
+    uint8_t ret = COM_OK;
+    int16_t x, y, dx, dy, d, incrE, incrNE, temp;
+    int16_t x0 = x1, y0 = y1, X = x2, Y = y2;
+    uint8_t yflag = 0, xyflag = 0;
 uint8_t com_oled::show::Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2,
                              uint8_t cmd) {
     uint8_t ret = COM_OK;
@@ -317,14 +361,45 @@ uint8_t com_oled::show::Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2,
             y0 = Y;
             Y = temp;
         }
+    if (y0 == Y) {
+        for (x = x0; x <= X; x++) {
+            ret += Point(x, y0, cmd);
+        }
+    } else if (x0 == X) {
+        for (y = y0; y <= Y; y++) {
+            ret += Point(x0, y, cmd);
+        }
+    } else {
+        if (x0 > X) {
+            temp = x0;
+            x0 = X;
+            X = temp;
+            temp = y0;
+            y0 = Y;
+            Y = temp;
+        }
 
+        if (y0 > Y) {
+            y0 = -y0;
+            Y = -Y;
         if (y0 > Y) {
             y0 = -y0;
             Y = -Y;
 
             yflag = 1;
         }
+            yflag = 1;
+        }
 
+        if (Y - y0 > X - x0) {
+            xyflag = 1;
+            temp = x0;
+            x0 = y0;
+            y0 = temp;
+            temp = X;
+            X = Y;
+            Y = temp;
+        }
         if (Y - y0 > X - x0) {
             xyflag = 1;
             temp = x0;
@@ -342,7 +417,23 @@ uint8_t com_oled::show::Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2,
         d = 2 * dy - dx;
         x = x0;
         y = y0;
+        dx = X - x0;
+        dy = Y - y0;
+        incrE = 2 * dy;
+        incrNE = 2 * (dy - dx);
+        d = 2 * dy - dx;
+        x = x0;
+        y = y0;
 
+        if (yflag && xyflag) {
+            ret += Point(y, -x, cmd);
+        } else if (yflag) {
+            ret += Point(x, -y, cmd);
+        } else if (xyflag) {
+            ret += Point(y, x, cmd);
+        } else {
+            ret += Point(x, y, cmd);
+        }
         if (yflag && xyflag) {
             ret += Point(y, -x, cmd);
         } else if (yflag) {
@@ -361,7 +452,30 @@ uint8_t com_oled::show::Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2,
                 y++;
                 d += incrNE;
             }
+        while (x < X) {
+            x++;
+            if (d < 0) {
+                d += incrE;
+            } else {
+                y++;
+                d += incrNE;
+            }
 
+            if (yflag && xyflag) {
+                ret += Point(y, -x, cmd);
+            } else if (yflag) {
+                ret += Point(x, -y, cmd);
+            } else if (xyflag) {
+                ret += Point(y, x, cmd);
+            } else {
+                ret += Point(x, y, cmd);
+            }
+        }
+    }
+    if (ret != COM_OK) {
+        return COM_ERROR;
+    }
+    return ret;
             if (yflag && xyflag) {
                 ret += Point(y, -x, cmd);
             } else if (yflag) {
@@ -408,6 +522,25 @@ uint8_t com_oled::show::Rectangle(uint8_t x1, uint8_t y1, uint8_t x2,
         return COM_ERROR;
     }
     return ret;
+uint8_t com_oled::show::Rectangle(uint8_t x1, uint8_t y1, uint8_t x2,
+                                  uint8_t y2, uint8_t IsFilled, uint8_t cmd) {
+    uint8_t ret = COM_OK;
+    if (IsFilled) {
+        for (uint8_t i = y1; i <= y2; i++) {
+            for (uint8_t j = x1; j <= x2; j++) {
+                ret += Point(j, i, cmd);
+            }
+        }
+    } else {
+        ret += Line(x1, y1, x2, y1, cmd);
+        ret += Line(x1, y1, x1, y2, cmd);
+        ret += Line(x1, y2, x2, y2, cmd);
+        ret += Line(x2, y1, x2, y2, cmd);
+    }
+    if (ret != COM_OK) {
+        return COM_ERROR;
+    }
+    return ret;
 }
 
 /**
@@ -428,7 +561,39 @@ uint8_t com_oled::show::Triangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2,
     uint8_t ret = COM_OK;
     int16_t vx[] = {x1, x2, x3};
     int16_t vy[] = {y1, y2, y3};
+uint8_t com_oled::show::Triangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2,
+                                 uint8_t x3, uint8_t y3, uint8_t IsFilled,
+                                 uint8_t cmd) {
+    uint8_t ret = COM_OK;
+    int16_t vx[] = {x1, x2, x3};
+    int16_t vy[] = {y1, y2, y3};
 
+    if (IsFilled) {
+        uint8_t minx = x1, miny = y1, maxx = x1, maxy = y1;
+        if (x2 < minx) {
+            minx = x2;
+        }
+        if (x3 < minx) {
+            minx = x3;
+        }
+        if (y2 < miny) {
+            miny = y2;
+        }
+        if (y3 < miny) {
+            miny = y3;
+        }
+        if (x2 > maxx) {
+            maxx = x2;
+        }
+        if (x3 > maxx) {
+            maxx = x3;
+        }
+        if (y2 > maxy) {
+            maxy = y2;
+        }
+        if (y3 > maxy) {
+            maxy = y3;
+        }
     if (IsFilled) {
         uint8_t minx = x1, miny = y1, maxx = x1, maxy = y1;
         if (x2 < minx) {
@@ -468,7 +633,23 @@ uint8_t com_oled::show::Triangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2,
         ret += Line(x1, y1, x3, y3, cmd);
         ret += Line(x2, y2, x3, y3, cmd);
     }
+        for (uint8_t i = miny; i <= maxy; i++) {
+            for (uint8_t j = minx; j <= maxx; j++) {
+                if (oled.Pnpoly(3, vx, vy, j, i)) {
+                    ret += Point(j, i, cmd);
+                }
+            }
+        }
+    } else {
+        ret += Line(x1, y1, x2, y2, cmd);
+        ret += Line(x1, y1, x3, y3, cmd);
+        ret += Line(x2, y2, x3, y3, cmd);
+    }
 
+    if (ret != COM_OK) {
+        return COM_ERROR;
+    }
+    return ret;
     if (ret != COM_OK) {
         return COM_ERROR;
     }
@@ -488,12 +669,57 @@ uint8_t com_oled::show::Circle(uint8_t x0, uint8_t y0, uint8_t r,
                                uint8_t IsFilled, uint8_t cmd) {
     uint8_t ret = COM_OK;
     int16_t x = 0, y = r, d = 1 - r;
+uint8_t com_oled::show::Circle(uint8_t x0, uint8_t y0, uint8_t r,
+                               uint8_t IsFilled, uint8_t cmd) {
+    uint8_t ret = COM_OK;
+    int16_t x = 0, y = r, d = 1 - r;
 
     ret += Point(x0 + x, y0 + y, cmd);
     ret += Point(x0 + x, y0 - y, cmd);
     ret += Point(x0 - x, y0 + y, cmd);
     ret += Point(x0 - x, y0 - y, cmd);
+    ret += Point(x0 + x, y0 + y, cmd);
+    ret += Point(x0 + x, y0 - y, cmd);
+    ret += Point(x0 - x, y0 + y, cmd);
+    ret += Point(x0 - x, y0 - y, cmd);
 
+    if (IsFilled) {
+        for (uint8_t i = -y; i <= y; i++) {
+            ret += Point(x0, y0 + i, cmd);
+        }
+    }
+    while (x < y) {
+        x++;
+        if (d < 0) {
+            d += 2 * x + 3;
+        } else {
+            d += 2 * (x - y) + 5;
+            y--;
+        }
+        x++;
+        ret += Point(x0 + x, y0 + y, cmd);
+        ret += Point(x0 - x, y0 + y, cmd);
+        ret += Point(x0 + x, y0 - y, cmd);
+        ret += Point(x0 - x, y0 - y, cmd);
+        ret += Point(x0 + y, y0 + x, cmd);
+        ret += Point(x0 - y, y0 + x, cmd);
+        ret += Point(x0 + y, y0 - x, cmd);
+        ret += Point(x0 - y, y0 - x, cmd);
+        if (IsFilled) {
+            for (uint8_t i = -y; i <= y; i++) {
+                ret += Point(x0 + x, y0 + i, cmd);
+                ret += Point(x0 - x, y0 + i, cmd);
+            }
+            for (uint8_t i = -x; i <= x; i++) {
+                ret += Point(x0 + y, y0 + i, cmd);
+                ret += Point(x0 - y, y0 + i, cmd);
+            }
+        }
+    }
+    if (ret != COM_OK) {
+        return COM_ERROR;
+    }
+    return ret;
     if (IsFilled) {
         for (uint8_t i = -y; i <= y; i++) {
             ret += Point(x0, y0 + i, cmd);
@@ -549,7 +775,16 @@ uint8_t com_oled::show::Ellipse(uint8_t x0, uint8_t y0, uint8_t a, uint8_t b,
     uint8_t ret = COM_OK;
     int16_t x = 0, y = b, d = 2 * b * b + a * a * (1 - 2 * b);
     float d1, d2;
+uint8_t com_oled::show::Ellipse(uint8_t x0, uint8_t y0, uint8_t a, uint8_t b,
+                                uint8_t IsFilled, uint8_t cmd) {
+    uint8_t ret = COM_OK;
+    int16_t x = 0, y = b, d = 2 * b * b + a * a * (1 - 2 * b);
+    float d1, d2;
 
+    ret += Point(x0 + x, y0 + y, cmd);
+    ret += Point(x0 + x, y0 - y, cmd);
+    ret += Point(x0 - x, y0 + y, cmd);
+    ret += Point(x0 - x, y0 - y, cmd);
     ret += Point(x0 + x, y0 + y, cmd);
     ret += Point(x0 + x, y0 - y, cmd);
     ret += Point(x0 - x, y0 + y, cmd);
@@ -560,12 +795,29 @@ uint8_t com_oled::show::Ellipse(uint8_t x0, uint8_t y0, uint8_t a, uint8_t b,
             ret += Point(x0, y0 + i, cmd);
         }
     }
+    if (IsFilled) {
+        for (uint8_t i = -y; i <= y; i++) {
+            ret += Point(x0, y0 + i, cmd);
+        }
+    }
 
     Point(x0 + x, y0 + y, cmd);
     Point(x0 - x, y0 + y, cmd);
     Point(x0 + x, y0 - y, cmd);
     Point(x0 - x, y0 - y, cmd);
+    Point(x0 + x, y0 + y, cmd);
+    Point(x0 - x, y0 + y, cmd);
+    Point(x0 + x, y0 - y, cmd);
+    Point(x0 - x, y0 - y, cmd);
 
+    while (b * b * (x + 1) < a * a * (y - 0.5)) {
+        if (d1 <= 0) {
+            d1 += b * b * (2 * x + 3);
+        } else {
+            d1 += b * b * (2 * x + 3) + a * a * (-2 * y + 2);
+            y--;
+        }
+        x++;
     while (b * b * (x + 1) < a * a * (y - 0.5)) {
         if (d1 <= 0) {
             d1 += b * b * (2 * x + 3);
@@ -581,7 +833,18 @@ uint8_t com_oled::show::Ellipse(uint8_t x0, uint8_t y0, uint8_t a, uint8_t b,
                 ret += Point(x0 - x, y0 + i, cmd);
             }
         }
+        if (IsFilled) {
+            for (uint8_t i = -y; i < y; i++) {
+                ret += Point(x0 + x, y0 + i, cmd);
+                ret += Point(x0 - x, y0 + i, cmd);
+            }
+        }
 
+        ret += Point(x0 + x, y0 + y, cmd);
+        ret += Point(x0 - x, y0 - y, cmd);
+        ret += Point(x0 - x, y0 + y, cmd);
+        ret += Point(x0 + x, y0 - y, cmd);
+    }
         ret += Point(x0 + x, y0 + y, cmd);
         ret += Point(x0 - x, y0 - y, cmd);
         ret += Point(x0 - x, y0 + y, cmd);
@@ -591,7 +854,33 @@ uint8_t com_oled::show::Ellipse(uint8_t x0, uint8_t y0, uint8_t a, uint8_t b,
     /*画椭圆两侧部分*/
     d2 = b * b * (x + 0.5) * (x + 0.5) + a * a * (y - 1) * (y - 1) -
          a * a * b * b;
+    /*画椭圆两侧部分*/
+    d2 = b * b * (x + 0.5) * (x + 0.5) + a * a * (y - 1) * (y - 1) -
+         a * a * b * b;
 
+    while (y >= 0) {
+        y--;
+        if (d2 < 0) {
+            d2 += 2 * b * b * (2 * x + 3);
+            x++;
+        } else {
+            d2 += 2 * b * b * (2 * x + 3) + a * a * (2 - 2 * y);
+        }
+        ret += Point(x0 + x, y0 + y, cmd);
+        ret += Point(x0 - x, y0 + y, cmd);
+        ret += Point(x0 + x, y0 - y, cmd);
+        ret += Point(x0 - x, y0 - y, cmd);
+        if (IsFilled) {
+            for (uint8_t i = -y; i <= y; i++) {
+                ret += Point(x0 + x, y0 + i, cmd);
+                ret += Point(x0 - x, y0 + i, cmd);
+            }
+        }
+    }
+    if (ret != COM_OK) {
+        return COM_ERROR;
+    }
+    return ret;
     while (y >= 0) {
         y--;
         if (d2 < 0) {
@@ -644,6 +933,23 @@ uint8_t com_oled::show::Arc(uint8_t x0, uint8_t y0, uint8_t r,
     if (oled.IsInAngle(-y, -x, StartAngle, EndAngle)) {
         ret += Point(x0 - y, y0 - x, cmd);
     }
+uint8_t com_oled::show::Arc(uint8_t x0, uint8_t y0, uint8_t r,
+                            int16_t StartAngle, int16_t EndAngle,
+                            uint8_t IsFilled, uint8_t cmd) {
+    uint8_t ret = COM_OK, Status = 0;
+    int16_t x = 0, y = r, d = 1 - r;
+    if (oled.IsInAngle(x, y, StartAngle, EndAngle)) {
+        ret += Point(x0 + x, y0 + y, cmd);
+    }
+    if (oled.IsInAngle(-x, -y, StartAngle, EndAngle)) {
+        ret += Point(x0 - x, y0 - y, cmd);
+    }
+    if (oled.IsInAngle(y, x, StartAngle, EndAngle)) {
+        ret += Point(x0 + y, y0 + x, cmd);
+    }
+    if (oled.IsInAngle(-y, -x, StartAngle, EndAngle)) {
+        ret += Point(x0 - y, y0 - x, cmd);
+    }
 
     if (IsFilled) {
         for (int16_t i = -y; i < y; i++) {
@@ -652,7 +958,22 @@ uint8_t com_oled::show::Arc(uint8_t x0, uint8_t y0, uint8_t r,
             }
         }
     }
+    if (IsFilled) {
+        for (int16_t i = -y; i < y; i++) {
+            if (oled.IsInAngle(0, i, StartAngle, EndAngle)) {
+                ret += Point(x0, y0 + i, cmd);
+            }
+        }
+    }
 
+    while (x < y) {
+        x++;
+        if (d < 0) {
+            d += 2 * x + 1;
+        } else {
+            y--;
+            d += 2 * (x - y) + 1;
+        }
     while (x < y) {
         x++;
         if (d < 0) {
@@ -670,7 +991,39 @@ uint8_t com_oled::show::Arc(uint8_t x0, uint8_t y0, uint8_t r,
         Point(x0 + y, y0 - x, oled.IsInAngle(y, -x, StartAngle, EndAngle));
         Point(x0 - x, y0 + y, oled.IsInAngle(-x, y, StartAngle, EndAngle));
         Point(x0 - y, y0 + x, oled.IsInAngle(-y, x, StartAngle, EndAngle));
+        Point(x0 + x, y0 + y, oled.IsInAngle(x, y, StartAngle, EndAngle));
+        Point(x0 + y, y0 + x, oled.IsInAngle(y, x, StartAngle, EndAngle));
+        Point(x0 - x, y0 - y, oled.IsInAngle(-x, -y, StartAngle, EndAngle));
+        Point(x0 - y, y0 - x, oled.IsInAngle(-y, -x, StartAngle, EndAngle));
+        Point(x0 + x, y0 - y, oled.IsInAngle(x, -y, StartAngle, EndAngle));
+        Point(x0 + y, y0 - x, oled.IsInAngle(y, -x, StartAngle, EndAngle));
+        Point(x0 - x, y0 + y, oled.IsInAngle(-x, y, StartAngle, EndAngle));
+        Point(x0 - y, y0 + x, oled.IsInAngle(-y, x, StartAngle, EndAngle));
 
+        if (IsFilled) {
+            for (int16_t i = -y; i < y; i++) {
+                if (oled.IsInAngle(x, i, StartAngle, EndAngle)) {
+                    ret += Point(x0 + x, y0 + i, cmd);
+                }
+                if (oled.IsInAngle(-x, i, StartAngle, EndAngle)) {
+                    ret += Point(x0 - x, y0 + i, cmd);
+                }
+            }
+            for (int16_t i = -x; i < x; i++) {
+                if (oled.IsInAngle(-y, i, StartAngle, EndAngle)) {
+                    ret += Point(x0 - y, y0 + i, cmd);
+                }
+                if (oled.IsInAngle(y, i, StartAngle, EndAngle)) {
+                    ret += Point(x0 + y, y0 - y, cmd);
+                }
+            }
+        }
+    }
+
+    if (ret != COM_OK) {
+        return COM_ERROR;
+    }
+    return ret;
         if (IsFilled) {
             for (int16_t i = -y; i < y; i++) {
                 if (oled.IsInAngle(x, i, StartAngle, EndAngle)) {
@@ -749,9 +1102,49 @@ uint8_t com_oled::show::String(uint8_t x, uint8_t y, const char *String,
         return COM_ERROR;
     }
     return ret;
+ * @brief display a string
+ * @param x: x coordinate
+ * @param y: y coordinate
+ * @param String: string
+ * @param Size: font size
+ */
+uint8_t com_oled::show::String(uint8_t x, uint8_t y, const char *String,
+                               uint8_t Size) {
+    uint8_t ret = COM_OK;
+    for (uint8_t i = 0; String[i] != '\0'; i++)  // traverse
+    {
+        ret += Char(x + i * Size, y, String[i], Size);
+    }
+    if (ret != COM_OK) {
+        return COM_ERROR;
+    }
+    return ret;
 }
 
 /**
+ * @brief display a number
+ * @param x: x coordinate
+ * @param y: y coordinate
+ * @param num: number.num range is -2147483648-2147483647
+ * @param len: number length
+ * @param size: font size.use Font_Size
+ */
+uint8_t com_oled::show::Num(uint8_t x, uint8_t y, int num, uint8_t len,
+                            uint8_t size) {
+    uint8_t status = 0, ret = COM_OK;
+    if (num < 0) {
+        ret += Char(x, y, '-', size);
+        num = -num;
+        status = 1;
+    }
+    for (uint8_t i = status; i < len + status; i++) {
+        ret += Char(x + size * i, y, num / oled.Pow(10, len - i - 1) % 10 + '0',
+                    size);
+    }
+    if (ret != COM_OK) {
+        return COM_ERROR;
+    }
+    return ret;
  * @brief display a number
  * @param x: x coordinate
  * @param y: y coordinate
@@ -801,6 +1194,21 @@ uint8_t com_oled::show::Hex(uint8_t x, uint8_t y, uint32_t num, uint8_t len,
         return COM_ERROR;
     }
     return ret;
+uint8_t com_oled::show::Hex(uint8_t x, uint8_t y, uint32_t num, uint8_t len,
+                            uint8_t size) {
+    uint8_t ret = COM_OK, tempnum;
+    for (uint8_t i = 0; i < len; i++) {
+        tempnum = num / oled.Pow(16, len - i - 1) % 16;
+        if (tempnum < 10) {
+            ret += Char(x + size * i, y, tempnum + '0', size);
+        } else {
+            ret += Char(x + size * i, y, tempnum - 10 + 'A', size);
+        }
+    }
+    if (ret != COM_OK) {
+        return COM_ERROR;
+    }
+    return ret;
 }
 
 /**
@@ -812,6 +1220,14 @@ uint8_t com_oled::show::Hex(uint8_t x, uint8_t y, uint32_t num, uint8_t len,
  * @param size  font size.use Font_Size
  * @return COM_StatusTypeDef COM_OK: success, COM_ERROR: fail
  */
+uint8_t com_oled::show::Bin(uint8_t x, uint8_t y, uint32_t num, uint8_t len,
+                            uint8_t size) {
+    uint8_t ret = COM_OK;
+    for (uint8_t i = 0; i < len; i++) {
+        ret += Char(x + size * i, y, num / oled.Pow(2, len - i - 1) % 2 + '0',
+                    size);
+    }
+    return ret;
 uint8_t com_oled::show::Bin(uint8_t x, uint8_t y, uint32_t num, uint8_t len,
                             uint8_t size) {
     uint8_t ret = COM_OK;
@@ -846,6 +1262,22 @@ uint8_t com_oled::show::Float(uint8_t x, uint8_t y, double num, uint8_t size) {
         return COM_ERROR;
     }
     return ret;
+uint8_t com_oled::show::Float(uint8_t x, uint8_t y, double num, uint8_t size) {
+    uint8_t ret = COM_OK;
+    uint8_t status = 0;
+    if (num < 0) {
+        ret += Char(x, y, '-', size);
+        num = -num;
+        status = 1;
+    }
+    ret += Num(x + size * status, y, (int)num, 1, size);
+    ret += Char(x + size * (status + 1), y, '.', size);
+    ret += Num(x + size * (status + 2), y, (int)((num - (int)num) * 1000), 3,
+               size);
+    if (ret != COM_OK) {
+        return COM_ERROR;
+    }
+    return ret;
 }
 
 /**
@@ -854,6 +1286,8 @@ uint8_t com_oled::show::Float(uint8_t x, uint8_t y, double num, uint8_t size) {
  * @param y  y coordinate
  * @param Chinese  Chinese string
  * @return COM_StatusTypeDef COM_OK: success, COM_ERROR: fail
+ * @todo search the Chinese character in the Chinese1616 array,from
+ * https://gitee.com/zeruns/STM32-HAL-OLED-I2C
  * @todo search the Chinese character in the Chinese1616 array,from
  * https://gitee.com/zeruns/STM32-HAL-OLED-I2C
  */
@@ -873,6 +1307,7 @@ uint8_t com_oled::show::Chinese(uint8_t x, uint8_t y, char *Chinese) {
         }
     }
 
+    return ret;
     return ret;
 }
 
@@ -897,6 +1332,19 @@ uint8_t com_oled::show::Printf(uint8_t x, uint8_t y, uint8_t size,
         return COM_ERROR;
     }
     return ret;
+uint8_t com_oled::show::Printf(uint8_t x, uint8_t y, uint8_t size,
+                               const char *fmt, ...) {
+    uint8_t ret = COM_OK;
+    va_list ap;
+    va_start(ap, fmt);
+    char string[64] = {0};
+    vsprintf(string, fmt, ap);
+    va_end(ap);
+    ret += String(x, y, string, size);
+    if (ret != COM_OK) {
+        return COM_ERROR;
+    }
+    return ret;
 }
 
 /**
@@ -908,6 +1356,16 @@ uint8_t com_oled::show::Printf(uint8_t x, uint8_t y, uint8_t size,
  * @param len  string length
  * @return COM_StatusTypeDef COM_OK: success, COM_ERROR: fail
  */
+uint8_t com_oled::show::Printf(uint8_t x, uint8_t y, uint8_t size, uint8_t *buf,
+                               uint16_t len) {
+    uint8_t ret = COM_OK;
+    char string[64] = {0};
+    memcpy(string, buf, len);
+    ret += String(x, y, string, size);
+    if (ret != COM_OK) {
+        return COM_ERROR;
+    }
+    return ret;
 uint8_t com_oled::show::Printf(uint8_t x, uint8_t y, uint8_t size, uint8_t *buf,
                                uint16_t len) {
     uint8_t ret = COM_OK;
@@ -1146,9 +1604,40 @@ uint32_t com_oled::Pow(uint32_t x, uint32_t y) {
         result *= x;
     }
     return result;
+ * @brief pow function
+ * @param x: base
+ * @param y: exponent
+ * @return result
+ */
+uint32_t com_oled::Pow(uint32_t x, uint32_t y) {
+    uint32_t result = 1;
+    while (y--) {
+        result *= x;
+    }
+    return result;
 }
 
 /**
+ * @brief judge if a point is in designated polygon
+ * @param nvert: vertex number
+ * @param vertx: x coordinate of vertex
+ * @param verty: y coordinate of vertex
+ * @param testx: x coordinate of test point
+ * @param testy: y coordinate of test point
+ * @return 1: in polygon, 0: not in polygon
+ */
+uint8_t com_oled::Pnpoly(uint8_t nvert, int16_t *vertx, int16_t *verty,
+                         int16_t testx, int testy) {
+    uint8_t i, j, c = 0;
+    for (i = 0, j = nvert - 1; i < nvert; j = i++) {
+        if (((verty[i] > testy) != (verty[j] > testy)) &&
+            (testx < (vertx[j] - vertx[i]) * (testy - verty[i]) /
+                             (verty[j] - verty[i]) +
+                         vertx[i])) {
+            c = !c;
+        }
+    }
+    return c;
  * @brief judge if a point is in designated polygon
  * @param nvert: vertex number
  * @param vertx: x coordinate of vertex
@@ -1182,7 +1671,27 @@ uint8_t com_oled::Pnpoly(uint8_t nvert, int16_t *vertx, int16_t *verty,
 uint8_t com_oled::IsInAngle(int16_t x, int16_t y, int16_t StartAngle,
                             int16_t EndAngle) {
     int16_t Angle = atan2(y, x) / 3.1415926 * 180;
+ * @brief judge if a point is in designated angle
+ * @param x: x coordinate
+ * @param y: y coordinate
+ * @param StartAngle: start angle
+ * @param EndAngle: end angle
+ * @return 1: in angle, 0: not in angle
+ */
+uint8_t com_oled::IsInAngle(int16_t x, int16_t y, int16_t StartAngle,
+                            int16_t EndAngle) {
+    int16_t Angle = atan2(y, x) / 3.1415926 * 180;
 
+    if (StartAngle < EndAngle) {
+        if (Angle >= StartAngle && Angle <= EndAngle) {
+            return 1;
+        }
+    } else {
+        if (Angle >= StartAngle || Angle <= EndAngle) {
+            return 1;
+        }
+    }
+    return 0;
     if (StartAngle < EndAngle) {
         if (Angle >= StartAngle && Angle <= EndAngle) {
             return 1;
